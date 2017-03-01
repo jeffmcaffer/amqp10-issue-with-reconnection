@@ -1,6 +1,9 @@
 module.exports = {createConnectionString}
 
 function createConnectionString() {
+    if (process.env.AMQP_URL) {
+        return process.env.AMQP_URL;
+    }
     var protocol = 'amqps';
     var serviceBusHost = process.env.SERVICE_BUS_HOST + '.servicebus.windows.net';
     if (process.env.SERVICE_BUS_HOST.indexOf(".") !== -1) {

@@ -38,25 +38,29 @@ connectPromise.then(setupSender).catch(err => console.error(err));
 function setupSender() {
     console.log('setup sender');
     function startSendingMessages(sender) {
-        console.log('sender created');
+      for (let i = 0; i < 10; i++) {
+        console.log('sender created ' + i);
         setInterval(function () {
-            sendMessage(sender);
-        }, 10)
-
+          for (let j = 0; j < 10; j++) {
+            sendMessage(sender, i);
+          }
+        }, 100);
+      }
     }
 
     client.createSender('queue').then(startSendingMessages).catch(errorCallback);
 }
 
-var messageCount = 0;
-function sendMessage(sender) {
+var messageCount = [];
+function sendMessage(sender, loop) {
+    messageCount[loop] = messageCount[loop] || {attempted: 0, completed: 0};
     var payload = "abc";
-    sender.send(payload).then(function (){
-        messageCount ++;
+    messageCount[loop].attempted++;
+    sender.send(payload).then(function () {
+        messageCount[loop].completed++;
 
-        if (messageCount == 1000){
-            console.log('send 1.000 message to the queue');
-            messageCount =0;
+        if (messageCount[loop].attempted % 1000 === 0){
+            console.log(`attempted 1.000 message, completed ${messageCount[loop].completed} to the queue in loop ${loop}`);
         }
     }).catch(errorCallback);
 }
